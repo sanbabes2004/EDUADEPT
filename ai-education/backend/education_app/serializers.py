@@ -1,0 +1,116 @@
+from .models import *
+from rest_framework import serializers
+
+
+class UserRegisterSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Parent
+        fields = '__all__'
+        read_only_fields = ['id']
+
+    def validate_email(self, value):
+        """
+        Custom validation for the email field to ensure uniqueness.
+        """
+        # if self.instance:  # Check during updates
+        #     if Parent.objects.filter(email=value).exclude(id=self.instance.id).exists():
+        #         raise serializers.ValidationError("A parent with this email already exists.")
+        # else:  # Check during creation
+        #     if Parent.objects.filter(email=value).exists():
+        #         raise serializers.ValidationError("A parent with this email already exists.")
+        return value
+
+class StudentRegisterSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Student
+        fields = '__all__'
+
+class LoginSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+    password = serializers.CharField(max_length=100)
+
+class ParentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Parent
+        fields = ['id', 'name', 'phone_number', 'email']  
+
+class StudentSerializer(serializers.ModelSerializer):
+    parent = ParentSerializer()  
+
+    class Meta:
+        model = Student
+        fields = ['id', 'name', 'phone_number', 'email', 'department', 'batch', 'parent']
+
+class ParentViewChildSerializer(serializers.Serializer):
+    class Meta:
+        models = Student
+        fields = ["name","departmnet"]
+
+class UpdateStudentProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Student
+        fields = ['name', 'email', 'phone_number', 'department', 'batch']
+
+
+class RemoveStudentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Student
+        fields = '__all__'
+
+class QuizSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Quiz
+        fields = '__all__'
+
+class AssignmentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Assignment
+        fields = '__all__'
+
+# class QuizParticipationSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = QuizParticipation
+#         fields = '__all__'
+
+# class ResultSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = Result
+#         fields = '__all__'
+
+class ImageSearchSerializer(serializers.Serializer):
+    keyword = serializers.CharField(max_length=255)
+    image_url = serializers.URLField()
+    description = serializers.CharField()
+
+    
+class PerformanceReportSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PerformanceReport
+        fields = '__all__'
+
+class QuizQuestionSerializer(serializers.Serializer):
+    question_text = serializers.CharField(max_length=255)
+    options = serializers.ListField(child=serializers.CharField(max_length=255))
+    correct_answer = serializers.IntegerField()
+
+class QuizSerializer(serializers.ModelSerializer):
+    quiz_data = serializers.JSONField()
+
+    class Meta:
+        model = Quiz
+        fields = ['id', 'quiz_data']
+        
+class QuizMinimalResponseSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Quiz
+        fields = ['id', 'response']
+
+class PasswordResetSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+    new_password = serializers.CharField(max_length=100, write_only=True)
+
+    def validate_email(self, value):
+        # Check if the email exists in either Parent or Student model
+        if not Parent.objects.filter(email=value).exists() and not Student.objects.filter(email=value).exists():
+            raise serializers.ValidationError("No user found with this email.")
+        return value
