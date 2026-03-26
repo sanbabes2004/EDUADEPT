@@ -7,4 +7,4 @@ An educational platform with:
 
 Technologies used:
 - React Native
-- Django
+- pYTHON Django
