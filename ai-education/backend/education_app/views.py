@@ -428,7 +428,7 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view
 
 import google.generativeai as genai
-genai.configure(api_key='AIzaSyAtc75Tn9EIWHvEwbFbH2YRHXDUe-m2f7c')
+genai.configure(api_key=os.getenv("API_KEY"))
 
 def generate_questions(topic, num_questions=5):
     """Generates MCQ questions using the Gemini API."""
